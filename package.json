@@ -1,0 +1,56 @@
+{
+  "name": "php2wasm",
+  "version": "1.0.0",
+  "description": "PHP to WebAssembly (WASI) compiler - No server, no JS glue — run PHP in Cloudflare Workers or on embedded devices",
+  "main": "dist/php.wasm",
+  "scripts": {
+    "build": "make release",
+    "build:debug": "make debug",
+    "test": "make test",
+    "clean": "make clean",
+    "pack": "make pack",
+    "check": "make check",
+    "dev": "make dev-setup"
+  },
+  "keywords": [
+    "php",
+    "webassembly",
+    "wasi",
+    "compiler",
+    "cloudflare-workers",
+    "edge-computing",
+    "embedded"
+  ],
+  "author": "Mehmet T. AKALIN",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/makalin/php2wasm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/makalin/php2wasm/issues"
+  },
+  "homepage": "https://github.com/makalin/php2wasm#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "@wasm-tool/wasm-pack-plugin": "^1.6.0",
+    "webpack": "^5.88.0",
+    "webpack-cli": "^5.1.0"
+  },
+  "files": [
+    "dist/",
+    "src/",
+    "examples/",
+    "tools/",
+    "tests/",
+    "Makefile",
+    "CMakeLists.txt",
+    "README.md",
+    "LICENSE"
+  ],
+  "bin": {
+    "php2wasm": "./tools/php2wasm"
+  }
+}

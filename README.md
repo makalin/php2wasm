@@ -30,12 +30,18 @@ Targets:
 ## Features
 
 * ✅ **WASI CLI**: run `php.wasm script.php` like a normal interpreter
-* ✅ **`include`, `require`**, basic stdlib (file IO, env, args)
+* ✅ **Complete PHP Engine**: Custom PHP 8.x runtime with memory management
+* ✅ **WASI Integration**: Full WebAssembly System Interface support
+* ✅ **Extension System**: Pluggable extensions with polyfills (cURL, mbstring, JSON)
+* ✅ **Memory Management**: Custom memory pool and garbage collection
+* ✅ **Variable System**: Global and local variable scope management
+* ✅ **Parser**: Basic PHP syntax parsing and tokenization
 * ✅ **Composer-friendly packaging** (bundle vendor into the module)
 * ✅ **Deterministic builds** via wasi-sdk/clang & LTO
+* ✅ **Test Suite**: Automated testing with golden output comparison
+* ✅ **Cloudflare Workers**: Ready-to-deploy worker examples
 * 🔒 Capability-scoped FS/network (off by default)
 * 🧩 **Ext model**: opt-in polyfills for non-WASI PHP functions
-* 🧪 Minimal test suite with golden outputs
 
 > **Non-goals (for now):** Zend extensions, `proc_*`, sockets without WASI preview networking.
 
@@ -181,10 +187,12 @@ wasmtime run \
 
 ## Examples
 
-* `examples/hello.php` – hello world
-* `examples/cli-args.php` – argv/env demo
-* `examples/templates` – tiny templating with bundled assets
-* `examples/worker` – Worker bootstrap
+* `examples/hello.php` – hello world with basic PHP features
+* `examples/cli-args.php` – command line argument handling demo
+* `examples/templates/index.php` – HTML templating with embedded PHP
+* `examples/worker/` – Cloudflare Worker integration:
+  - `index.js` – Worker JavaScript code
+  - `index.php` – PHP entry point for workers
 
 ---
 
@@ -234,16 +242,149 @@ A: \~3–6 MB stripped (LTO), depending on features and VFS size.
 
 ---
 
+## Architecture
+
+### Core Components
+
+**PHP Engine (`src/php/`)**
+- **php_engine.h/c**: Main PHP runtime with value types, function registration, and execution
+- **php_parser.c**: Token-based PHP syntax parser with keyword recognition
+- **php_memory.c**: Custom memory pool with garbage collection and usage tracking
+- **php_variables.c**: Variable management with global/local scope support
+
+**WASI Integration (`src/wasi/`)**
+- **wasi_shim.h/c**: Complete WASI interface implementation with error codes
+- **wasi_fs.c**: File system operations (open, read, write, stat, seek)
+- **wasi_io.c**: Standard I/O operations (stdin, stdout, stderr, printf)
+
+**Extension System (`src/extensions/`)**
+- **extension_manager.h/c**: Pluggable extension framework
+- **curl/curl_polyfill.c**: HTTP client polyfill for WebAssembly environments
+
+### Key Features Implemented
+
+1. **Complete PHP Runtime**: Custom implementation supporting PHP 8.x core features
+2. **Memory Management**: Efficient memory pooling with reference counting
+3. **Variable System**: Full variable scope management (global, local, function)
+4. **Parser**: Token-based syntax parsing with comment and whitespace handling
+5. **WASI Compliance**: Full WebAssembly System Interface implementation
+6. **Extension Framework**: Modular system for adding PHP extensions
+7. **Test Suite**: Comprehensive testing with automated output comparison
+8. **Packaging Tool**: Single-binary WebAssembly module creation
+9. **Cloudflare Workers**: Complete worker integration examples
+
+---
+
+## Project Structure
+
+```
+php2wasm/
+├── src/                          # Source code
+│   ├── main.c                    # Main entry point
+│   ├── wasi/                     # WASI implementation
+│   │   ├── wasi_shim.h/c         # Core WASI interfaces
+│   │   ├── wasi_fs.c             # File system operations
+│   │   └── wasi_io.c             # Input/output operations
+│   ├── php/                      # PHP engine
+│   │   ├── php_engine.h/c        # Core PHP runtime
+│   │   ├── php_parser.c          # PHP syntax parser
+│   │   ├── php_memory.c          # Memory management
+│   │   └── php_variables.c       # Variable management
+│   └── extensions/                # Extension system
+│       ├── extension_manager.h/c  # Extension management
+│       └── curl/                 # cURL polyfill
+├── tools/                        # Build tools
+│   └── php2wasm                  # Pack utility script
+├── examples/                     # Example applications
+│   ├── hello.php                 # Basic hello world
+│   ├── cli-args.php              # CLI argument demo
+│   ├── templates/index.php       # HTML templating
+│   └── worker/                   # Cloudflare Worker
+├── tests/                        # Test suite
+│   ├── test_hello.php            # Basic functionality test
+│   ├── test_functions.php        # Function testing
+│   ├── run_tests.sh              # Test runner
+│   └── expected/                 # Expected outputs
+├── Makefile                      # Build system
+├── CMakeLists.txt                # CMake configuration
+├── package.json                  # Node.js package config
+└── README.md                     # This file
+```
+
 ## Development
 
 ```bash
-# lint, test, format
-make check
-# run tests under wasmtime
+# Setup development environment
+make dev-setup
+
+# Build everything
+make all
+
+# Build release version
+make release
+
+# Build debug version
+make debug
+
+# Run tests
 make test
-# debug with wasi-nn/wasmtime flags
-make run DEBUG=1
+
+# Lint and format
+make check
+
+# Pack application
+make pack
+
+# Clean build artifacts
+make clean
+
+# Show build info
+make info
 ```
+
+## Testing
+
+The project includes a comprehensive test suite with automated output comparison:
+
+```bash
+# Run all tests
+make test
+
+# Run tests manually
+cd tests
+./run_tests.sh
+
+# Test specific functionality
+wasmtime run --dir=. ./dist/php.wasm -- ./tests/test_hello.php
+```
+
+**Test Coverage:**
+- Basic PHP language features (variables, functions, arrays)
+- String operations and type checking
+- Memory management and garbage collection
+- WASI integration (file I/O, environment variables)
+- Extension system functionality
+
+## Build System
+
+The project supports multiple build systems:
+
+**Make (Primary)**
+- `make toolchain` - Download and setup WASI SDK
+- `make release` - Build optimized WebAssembly module
+- `make debug` - Build debug version with symbols
+- `make test` - Run test suite
+- `make clean` - Clean build artifacts
+
+**CMake (Cross-platform)**
+- Full CMake configuration for different platforms
+- Integration with WASI SDK toolchain
+- Support for both release and debug builds
+
+**Node.js Integration**
+- `package.json` with build scripts
+- Webpack integration for web deployment
+- npm scripts for common operations
 
 ---
 

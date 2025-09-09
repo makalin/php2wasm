@@ -1,0 +1,7 @@
+Hello from PHP2WASM test!
+PHP Version: 8.3.0
+2 + 2 = 4
+Hello, World!
+Sum of numbers: 15
+Factorial of 5: 120
+Test completed successfully!
